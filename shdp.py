@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.random import choice, normal, dirichlet, beta, gamma, multinomial, exponential, binomial
 from scipy.cluster.vq import kmeans2
+import pdb
 
 class StickyHDPHMM:
     def __init__(self, data, alpha=1, kappa=1, gma=1,
@@ -25,6 +26,7 @@ class StickyHDPHMM:
         self.kappa = kappa * data.size
         self.T, self.n = self.data.shape
 
+        # randomly initialize the state list, L is the number of states
         if kmeans_init:
             self.state = np.reshape(kmeans2(self.data.ravel(), L)[1], 
                                     self.data.shape)
@@ -42,9 +44,11 @@ class StickyHDPHMM:
                 self.mu[i] = np.mean(cluster)
                 self.sigma[i] = np.std(cluster)
                 
-        # initialize the stick-breaking by GEM distribution
+        # initialize the stick-breaking process by GEM distribution
         stickbreaking = self._gem(gma)
         self.beta = np.array([next(stickbreaking) for i in range(L)])
+
+        # initialize the transition matrix, PI.
         self.N = np.zeros((L, L))
         for t in range(1, self.T):
             for i in range(self.n):
@@ -97,12 +101,13 @@ class StickyHDPHMM:
         """
         
         for obs in range(self.n):
-            # Step 1: messages
+            # Step 1: backwards message passing
             messages = np.zeros((self.T, self.L))
             messages[-1, :] = 1
             for t in range(self.T - 1, 0, -1):
                 messages[t-1, :] = self.PI.dot(messages[t, :] * np.exp(self._logphi(self.data[t, obs], self.mu, self.sigma)))
                 messages[t-1, :] /= np.max(messages[t-1, :])
+            # pdb.set_trace()
             # Step 2: states by MH algorithm
             for t in range(1, self.T):
                 j = choice(self.L) # proposal
@@ -133,13 +138,16 @@ class StickyHDPHMM:
 
         w = np.array([binomial(self.M[i, i], 1 / (1 + self.beta[i])) for i in range(self.L)])
         m_bar = np.sum(self.M, axis=0) - w
-        
+
+        # pdb.set_trace()
+        # input("continue...")
         # Step 4: beta and parameters of clusters
         self.beta = dirichlet(np.ones(self.L) * (self.gma / self.L + m_bar))
 
         # Step 5: transition matrix
         self.PI =  np.tile(self.alpha * self.beta, (self.L, 1)) + self.N
         np.fill_diagonal(self.PI, np.diag(self.PI) + self.kappa)
+        # pdb.set_trace()
         for i in range(self.L):
             self.PI[i, :] = dirichlet(self.PI[i, :])
             idx = np.where(self.state == i)

@@ -5,6 +5,7 @@ from matplotlib import animation
 from matplotlib.colors import PowerNorm
 from cycler import cycler
 import csv
+import seaborn as sns
 
 from shdp import StickyHDPHMM
 
@@ -26,27 +27,23 @@ def read_data(file_path):
 
 if __name__ == '__main__':    
     #np.random.seed(11)
-    H = 3
-    L = 20
+    H = 1
+    L = 10
     colors = ['r', 'b', 'g']
     # data = np.loadtxt("simulated_data.txt")
-    # file = '/home/brianyao/Documents/Smart_Black_Box/Brightness_features.csv'
     file = 'obs_data_16d.csv'
     data = read_data(file)
-    # data[:,2] = data[:,2]*255
-    data = data[15000:16000,0:3]
-
-    print("data shape: ", data.shape)
-    input("continue...")
+    data = data[15500:16500,0:1]
+    # data = data[:,0:1]
 
     T = data.shape[0]    
     vmin, vmax = np.min(data) * 0.5, np.max(data) * 1.5
-    # xs = np.logspace(np.log10(vmin), np.log10(vmax), 100)
-    # logxs = np.log10(xs)
-    # logdata = np.log10(data)
-    xs = np.linspace(vmin,vmax)
-    logxs = np.linspace(vmin,vmax)
-    logdata = data
+    xs = np.logspace(np.log10(vmin), np.log10(vmax), 100)
+    logxs = np.log10(xs)
+    logdata = np.log10(data)
+    # xs = np.linspace(vmin,vmax)
+    # logxs = np.linspace(vmin,vmax)
+    # logdata = data
     hdp = StickyHDPHMM(logdata, L=L)#, kmeans_init=True)
     shdp = StickyHDPHMM(logdata, kappa=10, L=L, 
                         kmeans_init=False)
@@ -67,14 +64,16 @@ if __name__ == '__main__':
         shdp.sampler()
         for h in range(H):
             estimates_shdp = shdp.getPath(h)
-            line_shdp[h].set_data(np.arange(T), estimates_shdp)#10**
+            line_shdp[h].set_data(np.arange(T), 10**estimates_shdp)#
             density = gaussian_kde(estimates_shdp)
             density.set_bandwidth(0.1)
             ys = density(logxs)
 
             areas[h].set_xy(list(zip(ys, xs)) + [(0, xs[-1]), (0, xs[0])])
             dist_shdp[h].set_data(ys, xs)
-            
+
+        sns.heatmap(shdp.state[:, 0:1].T, ax=ax2, cbar=False)
+        print("state: ", shdp.state)
         trans_shdp.set_data(shdp.PI.copy())
         text.set_text("MCMC iteration {0}".format(t))
         return line_shdp + dist_shdp + [trans_shdp, text] + areas
@@ -86,7 +85,7 @@ if __name__ == '__main__':
     plt.gca().set_prop_cycle(cycle)
 
     ax1.set_title("Simulated data")
-    # ax1.set_yscale("log")
+    ax1.set_yscale("log")
 
     ax1.plot(data)
     ax1.set_ylabel("$f(t)$")
@@ -100,12 +99,14 @@ if __name__ == '__main__':
     ax2.set_title("Sticky HDP-HMM")
     ax2.set_xlabel("Time")
     ax2.set_ylabel("$f(t)$")
-    # ax2.set_yscale("log")
+    ax2.set_yscale("log")
     ax2.plot(data, alpha=0.5)     
     estimates_shdp = np.array([shdp.getPath(h) for h in range(H)]).T
-    line_shdp = ax2.plot(np.arange(T), estimates_shdp, linewidth=2) # 10**
+    line_shdp = ax2.plot(np.arange(T), 10**estimates_shdp, linewidth=2) #
+    # sns.heatmap(shdp.state[:,0:1].T,ax=ax2,cbar=False)
     # ax2.set_ylim([vmin, vmax])
     # ax2.set_xlim([0, 288])
+
     ax2.grid()
     
     ax3 = plt.subplot2grid((15, 20), (0, 13), colspan=2, rowspan=5)    
@@ -157,5 +158,5 @@ if __name__ == '__main__':
     ax7.axis('off')
 
     ani = animation.FuncAnimation(fig, update, interval=0, blit=True, 
-                            frames=10000, init_func=init)
+                            frames=1000, init_func=init)
     plt.show()
