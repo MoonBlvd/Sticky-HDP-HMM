@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # data = np.loadtxt("simulated_data.txt")
     file = 'obs_data_16d.csv'
     data = read_data(file)
-    data = data[15500:16500,0:1]
+    data = data[15500:16500,0:1]+1e-7
     # data = data[:,0:1]
 
     T = data.shape[0]    
