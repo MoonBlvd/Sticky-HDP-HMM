@@ -32,9 +32,10 @@ if __name__ == '__main__':
     colors = ['r', 'b', 'g']
     # data = np.loadtxt("simulated_data.txt")
     file = 'obs_data_16d.csv'
+    file = 'Brightness_features.csv'
     data = read_data(file)
-    data = data[15500:16500,0:1]+1e-7
-    # data = data[:,0:1]
+    # data = data[15500:16500,0:1]+1e-7
+    data = data[4000:6000,1:2] + 1e-7
 
     T = data.shape[0]    
     vmin, vmax = np.min(data) * 0.5, np.max(data) * 1.5
@@ -72,8 +73,11 @@ if __name__ == '__main__':
             areas[h].set_xy(list(zip(ys, xs)) + [(0, xs[-1]), (0, xs[0])])
             dist_shdp[h].set_data(ys, xs)
 
-        sns.heatmap(shdp.state[:, 0:1].T, ax=ax2, cbar=False)
-        print("state: ", shdp.state)
+        # sns.heatmap(shdp.state[:, 0:1].T, ax=ax2, cbar=False)
+        all_states, state_counts = np.unique(shdp.state, return_counts=True)
+        print("all states: ", all_states)
+        print("state counts: ", state_counts)
+        # print("PI: ", shdp.PI)
         trans_shdp.set_data(shdp.PI.copy())
         text.set_text("MCMC iteration {0}".format(t))
         return line_shdp + dist_shdp + [trans_shdp, text] + areas
@@ -158,5 +162,5 @@ if __name__ == '__main__':
     ax7.axis('off')
 
     ani = animation.FuncAnimation(fig, update, interval=0, blit=True, 
-                            frames=1000, init_func=init)
+                            frames=1000000, init_func=init)
     plt.show()
