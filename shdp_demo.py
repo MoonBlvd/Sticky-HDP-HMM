@@ -30,12 +30,12 @@ if __name__ == '__main__':
     H = 1
     L = 10
     colors = ['r', 'b', 'g']
-    # data = np.loadtxt("simulated_data.txt")
-    file = 'obs_data_16d.csv'
-    file = 'Brightness_features.csv'
-    data = read_data(file)
+    data = np.loadtxt("simulated_data.txt")
+    # file = 'obs_data_16d.csv'
+    # file = 'Brightness_features.csv'
+    # data = read_data(file)
     # data = data[15500:16500,0:1]+1e-7
-    data = data[4000:6000,1:2] + 1e-7
+    # data = data[4000:6000,1:2] + 1e-7
 
     T = data.shape[0]    
     vmin, vmax = np.min(data) * 0.5, np.max(data) * 1.5

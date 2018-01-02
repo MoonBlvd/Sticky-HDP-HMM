@@ -123,7 +123,7 @@ class StickyHDPHMM:
                                   self._logphi(self.data[t-1, obs], 
                                                self.mu[j], 
                                                self.sigma[j]))
-                if exponential(1) > logprob_accept:
+                if exponential(1) > logprob_accept: 
                     self.state[t, obs] = j
                     self.N[self.state[t-1, obs], j] += 1
                     self.N[self.state[t-1, obs], k] -= 1            
@@ -142,8 +142,9 @@ class StickyHDPHMM:
         # pdb.set_trace()
         # input("continue...")
         # Step 4: beta and parameters of clusters
+        #self.beta = _gem(self.gma)
         self.beta = dirichlet(np.ones(self.L) * (self.gma / self.L + m_bar))
-        # self.beta =  dirichlet(self.gma * self.beta)
+
         # Step 5: transition matrix
         self.PI =  np.tile(self.alpha * self.beta, (self.L, 1)) + self.N
         np.fill_diagonal(self.PI, np.diag(self.PI) + self.kappa)
