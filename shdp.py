@@ -99,14 +99,14 @@ class StickyHDPHMM:
         """
         Run blocked-Gibbs sampling
         """
-        
+        pdb.set_trace()
         for obs in range(self.n):
             # Step 1: backwards message passing
             messages = np.zeros((self.T, self.L))
             messages[-1, :] = 1
             for t in range(self.T - 1, 0, -1):
                 messages[t-1, :] = self.PI.dot(messages[t, :] * np.exp(self._logphi(self.data[t, obs], self.mu, self.sigma)))
-                messages[t-1, :] /= np.max(messages[t-1, :])
+                # messages[t-1, :] /= np.max(messages[t-1, :])
             # pdb.set_trace()
             # Step 2: states by MH algorithm
             for t in range(1, self.T):
@@ -117,33 +117,46 @@ class StickyHDPHMM:
                                   np.log(messages[t, j]) +
                                   np.log(self.PI[self.state[t-1, obs], k]) -
                                   np.log(self.PI[self.state[t-1, obs], j]) +
-                                  self._logphi(self.data[t-1, obs], 
-                                               self.mu[k], 
+                                  self._logphi(self.data[t-1, obs],
+                                               self.mu[k],
                                                self.sigma[k]) -
-                                  self._logphi(self.data[t-1, obs], 
-                                               self.mu[j], 
+                                  self._logphi(self.data[t-1, obs],
+                                               self.mu[j],
                                                self.sigma[j]))
-                if exponential(1) > logprob_accept: 
+                if exponential(1) > logprob_accept:
                     self.state[t, obs] = j
                     self.N[self.state[t-1, obs], j] += 1
-                    self.N[self.state[t-1, obs], k] -= 1            
+                    self.N[self.state[t-1, obs], k] -= 1
+
+                # num = messages[t, j] * self.PI[self.state[t - 1, :], j] * np.exp(
+                #     self._logphi(self.data[t, :], self.mu[j], self.sigma[j]))
+                # den = messages[t, k] * self.PI[self.state[t - 1, :], k] * np.exp(
+                #     self._logphi(self.data[t, :], self.mu[k], self.sigma[k]))
+                #
+                # acceptance = 1 if num / den > 1 or den == 0 else num / den
+                # u = np.random.rand(1)
+                # if u < acceptance:
+                #     self.state[t, :] = j
+                #     self.N[self.state[t - 1, :], j] += 1
+                #     self.N[self.state[t - 1, :], k] -= 1
+
         
         # Step 3: auxiliary variables
-        P = np.tile(self.beta, (self.L, 1)) + self.n
-        np.fill_diagonal(P, np.diag(P) + self.kappa)
-        P = 1 - self.n / P
-        for i in range(self.L):
-            for j in range(self.L):
-                self.M[i, j] = binomial(self.M[i, j], P[i, j])
-
-        w = np.array([binomial(self.M[i, i], 1 / (1 + self.beta[i])) for i in range(self.L)])
-        m_bar = np.sum(self.M, axis=0) - w
+        # P = np.tile(self.beta, (self.L, 1)) + self.n
+        # np.fill_diagonal(P, np.diag(P) + self.kappa)
+        # P = 1 - self.n / P
+        # for i in range(self.L):
+        #     for j in range(self.L):
+        #         self.M[i, j] = binomial(self.M[i, j], P[i, j])
+        #
+        # w = np.array([binomial(self.M[i, i], 1 / (1 + self.beta[i])) for i in range(self.L)])
+        # m_bar = np.sum(self.M, axis=0) - w
 
         # pdb.set_trace()
         # input("continue...")
         # Step 4: beta and parameters of clusters
         #self.beta = _gem(self.gma)
-        self.beta = dirichlet(np.ones(self.L) * (self.gma / self.L + m_bar))
+        self.beta = dirichlet(np.ones(self.L) * (self.gma / self.L ))#+ m_bar
 
         # Step 5: transition matrix
         self.PI =  np.tile(self.alpha * self.beta, (self.L, 1)) + self.N
@@ -161,8 +174,20 @@ class StickyHDPHMM:
                                  nc * xmean ** 2 / (self.nu + nc)) / (2 * self.a + nc - 1)
             else:
                 self.mu[i] = normal(0, np.sqrt(self.nu))
-                self.sigma[i] = 1 / gamma(self.a, self.b)
-                        
+                self.sigma[i] = 1 / gamma(self.a, self.b)\
+
+
+        # check log likelihood
+        emis = 0
+        trans = 0
+        for t in range(self.n):
+            emis += self._logphi(self.data[t, :], self.mu[self.state[t, :]],
+                                        self.sigma[self.state[t, :]])
+            if t > 0:
+                trans += np.log(self.pi[self.state[t - 1, :], self.state[t, :]])
+        print ("log likelihood: ", emis+trans)
+
+
     def getPath(self, h):
         """
         Get the estimated sample path of h.
