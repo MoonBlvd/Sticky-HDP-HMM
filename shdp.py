@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 from numpy.random import choice, normal, dirichlet, beta, gamma, multinomial, exponential, binomial
 from scipy.cluster.vq import kmeans2
@@ -99,7 +100,7 @@ class StickyHDPHMM:
         """
         Run blocked-Gibbs sampling
         """
-        pdb.set_trace()
+        #pdb.set_trace()
         for obs in range(self.n):
             # Step 1: backwards message passing
             messages = np.zeros((self.T, self.L))
@@ -180,11 +181,20 @@ class StickyHDPHMM:
         # check log likelihood
         emis = 0
         trans = 0
-        for t in range(self.n):
+        for t in range(self.T):
             emis += self._logphi(self.data[t, :], self.mu[self.state[t, :]],
                                         self.sigma[self.state[t, :]])
             if t > 0:
-                trans += np.log(self.pi[self.state[t - 1, :], self.state[t, :]])
+                trans += np.log(self.PI[self.state[t - 1, :], self.state[t, :]])
+                #print ("data t: ", self.data[t,:])
+                #print ("mu: ", self.mu[self.state[t, :]])
+                #print ("sigma: ", self.sigma[self.state[t, :]])
+                #print ("state t-1:", self.state[t-1,:])
+                #print ("state t:", self.state[t,:])
+                #print ("pi (t-1,t): ", self.pi[self.state[t - 1, :], self.state[t, :]])
+                #input("continue...")
+                #print ("emis:", emis)
+                #print ("trans:", trans)
         print ("log likelihood: ", emis+trans)
 
 

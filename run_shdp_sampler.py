@@ -30,7 +30,7 @@ if __name__ == "__main__":
     DP = StickyHDPHMM(data, kappa=10, L=20,
                         kmeans_init=True)
     i = 0
-    while i < 1000:
+    while i < 500:
         print("iter: ", i)
         DP.sampler()
         i+=1
