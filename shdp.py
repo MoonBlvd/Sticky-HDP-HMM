@@ -196,7 +196,7 @@ class StickyHDPHMM:
                 #print ("emis:", emis)
                 #print ("trans:", trans)
         print ("log likelihood: ", emis+trans)
-
+        print ("state list: ", self.state)
 
     def getPath(self, h):
         """
