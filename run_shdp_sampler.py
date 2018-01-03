@@ -25,12 +25,12 @@ def read_data(file_path):
 if __name__ == "__main__":
     data_path = "obs_data_16d.csv"
     data = read_data(data_path)
-    data = data[15500:16500,0:1]
+    data = data[15500:16500,0:2]
 
     DP = StickyHDPHMM(data, kappa=10, L=20,
                         kmeans_init=True)
     i = 0
-    while i < 1000:
+    while i < 100:
         print("iter: ", i)
         DP.sampler()
         i+=1
