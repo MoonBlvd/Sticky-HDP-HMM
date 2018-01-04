@@ -24,23 +24,35 @@ def read_data(file_path):
 
 if __name__ == "__main__":
     data_path = "obs_data_16d.csv"
+    data_path = "four_scores.csv"
     data = read_data(data_path)
-    data = data[15500:16500,0:2]
+    # data = data[15500:16500,0:2]
+    data = data[7500:8500,0:3]#data[15500:16500,0:1] 
+    n,d = data.shape
+    
+    # normalize
+    for i in range(d):
+        if np.std(data[:,i]) != 0:
+            data[:,i] = (data[:,i]-np.mean(data[:,i]))/np.std(data[:,i])
+        else:
+            data[:,i]    
 
-    DP = StickyHDPHMM(data, kappa=10, L=20,
-                        kmeans_init=True)
+    DP = StickyHDPHMM(data, kappa=10, L=10,
+                        kmeans_init=False)
     i = 0
-    while i < 100:
+    while i < 1000:
         print("iter: ", i)
         DP.sampler()
         i+=1
 
-    path = DP.getPath(0)
+    
     plt.figure(1)
     sns.heatmap(DP.state[:, 0:1].T, cbar=False)
     plt.figure(2)
-    plt.plot(range(DP.T), path, 'r')
+    for i in range(DP.n):
+        path = DP.getPath(i)
+        plt.plot(range(DP.T), path)
     plt.show()
     all_states, state_counts = np.unique(DP.state, return_counts=True)
-    print("all states: ", all_states)
-    print("state counts: ", state_counts)
+    #print("all states: ", all_states)
+    #print("state counts: ", state_counts)

@@ -107,7 +107,7 @@ class StickyHDPHMM:
             messages[-1, :] = 1
             for t in range(self.T - 1, 0, -1):
                 messages[t-1, :] = self.PI.dot(messages[t, :] * np.exp(self._logphi(self.data[t, obs], self.mu, self.sigma)))
-                # messages[t-1, :] /= np.max(messages[t-1, :])
+                messages[t-1, :] /= np.max(messages[t-1, :])
             # pdb.set_trace()
             # Step 2: states by MH algorithm
             for t in range(1, self.T):
@@ -175,7 +175,7 @@ class StickyHDPHMM:
                                  nc * xmean ** 2 / (self.nu + nc)) / (2 * self.a + nc - 1)
             else:
                 self.mu[i] = normal(0, np.sqrt(self.nu))
-                self.sigma[i] = 1 / gamma(self.a, self.b)\
+                self.sigma[i] = 1 / gamma(self.a, self.b)
 
 
         # check log likelihood
@@ -186,17 +186,8 @@ class StickyHDPHMM:
                                         self.sigma[self.state[t, :]])
             if t > 0:
                 trans += np.log(self.PI[self.state[t - 1, :], self.state[t, :]])
-                #print ("data t: ", self.data[t,:])
-                #print ("mu: ", self.mu[self.state[t, :]])
-                #print ("sigma: ", self.sigma[self.state[t, :]])
-                #print ("state t-1:", self.state[t-1,:])
-                #print ("state t:", self.state[t,:])
-                #print ("pi (t-1,t): ", self.pi[self.state[t - 1, :], self.state[t, :]])
-                #input("continue...")
-                #print ("emis:", emis)
-                #print ("trans:", trans)
         print ("log likelihood: ", emis+trans)
-        print ("state list: ", self.state)
+        #print ("state list: ", self.state)
 
     def getPath(self, h):
         """
