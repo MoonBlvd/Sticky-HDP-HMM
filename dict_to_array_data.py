@@ -16,23 +16,43 @@ if __name__ == "__main__":
     data_dict = pkl.load(open(file_path + file_name, 'rb'), encoding='latin1')
 
 
-    data = []
+    obs = []
+    ego = []
     for frame in data_dict:
-        curr_data = np.zeros(16)
+        curr_ego = [frame['x_dot_ego'],
+                    frame['lat'],frame['long'],
+                    frame['yaw'],frame['pitch'],frame['roll'],
+                    frame['v_east'],frame['v_north'],frame['v_vertical'],
+                    frame['accel_x'],frame['accel_y'],frame['accel_z'],
+                    frame['P_rate'],frame['Q_rate'],frame['R_rate'],
+                    frame['left_heading'],frame['right_heading'],frame['psi_T_0'],
+                    frame['left_dist'], frame['right_dist']]
+        ego.append(curr_ego)
+        # curr_obs = np.zeros(16)
+        curr_obs = np.zeros(16)
+        curr_obs[0] = 255
+        curr_obs[4] = 255
+        curr_obs[8] = 255
+        curr_obs[12] = 255
+        curr_obs[1] = 31
+        curr_obs[5] = 31
+        curr_obs[9] = 31
+        curr_obs[13] = 31
         for i in range(frame['num_obs']):
-            curr_data[i * 4 + 0] = frame['x_obs'][i]
-            curr_data[i * 4 + 1] = frame['y_obs'][i]
-            curr_data[i * 4 + 2] = frame['x_dot_obs'][i]
-            curr_data[i * 4 + 3] = frame['x_ddot_obs'][i]
+            curr_obs[i * 4 + 0] = frame['x_obs'][i]
+            curr_obs[i * 4 + 1] = frame['y_obs'][i]
+            curr_obs[i * 4 + 2] = frame['x_dot_obs'][i]
+            curr_obs[i * 4 + 3] = frame['x_ddot_obs'][i]
         # for j in range(frame['num_obs']*4,15):
-        #     curr_data[j] = 0
-        data.append(curr_data)
-    data  = np.array(data)
-    print(data[0])
+        #     curr_obs[j] = 0
+        obs.append(curr_obs)
+    obs  = np.array(obs)
+    print(obs[0])
 
 
-    write_path = "obs_data_4d.csv"
-    save_csv(write_path, data)
-    # field = ['x','y','v','a',]
-    # save_csv(write_path, field, data)
+    # write_path = "obs_data_16d_255.csv"
+    # save_csv(write_path, obs)
+    write_path = "ego_data_20d.csv"
+    save_csv(write_path, ego)
+
 
