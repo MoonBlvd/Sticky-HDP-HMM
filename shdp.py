@@ -125,6 +125,7 @@ class StickyHDPHMM:
                                                self.mu[j],
                                                self.sigma[j]))
                 if exponential(1) > logprob_accept:
+                    print ("state update!")
                     self.state[t, obs] = j
                     self.N[self.state[t-1, obs], j] += 1
                     self.N[self.state[t-1, obs], k] -= 1
