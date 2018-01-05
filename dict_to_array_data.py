@@ -29,20 +29,30 @@ if __name__ == "__main__":
                     frame['left_dist'], frame['right_dist']]
         ego.append(curr_ego)
         # curr_obs = np.zeros(16)
-        curr_obs = np.zeros(16)
-        curr_obs[0] = 255
-        curr_obs[4] = 255
+        curr_obs = np.zeros(24)
+        curr_obs[0] = -1
+        curr_obs[6] = -1
+        curr_obs[12] = -1
+        curr_obs[18] = -1
+        curr_obs[1] = -1
+        curr_obs[7] = -1
+        curr_obs[13] = -1
+        curr_obs[19] = -1
+        curr_obs[2] = 255
         curr_obs[8] = 255
-        curr_obs[12] = 255
-        curr_obs[1] = 31
-        curr_obs[5] = 31
+        curr_obs[14] = 255
+        curr_obs[20] = 255
+        curr_obs[3] = 31
         curr_obs[9] = 31
-        curr_obs[13] = 31
+        curr_obs[15] = 31
+        curr_obs[21] = 31
         for i in range(frame['num_obs']):
-            curr_obs[i * 4 + 0] = frame['x_obs'][i]
-            curr_obs[i * 4 + 1] = frame['y_obs'][i]
-            curr_obs[i * 4 + 2] = frame['x_dot_obs'][i]
-            curr_obs[i * 4 + 3] = frame['x_ddot_obs'][i]
+            curr_obs[i * 6 + 0] = frame['obs_ID'][i]
+            curr_obs[i * 6 + 1] = frame['obs_age'][i]
+            curr_obs[i * 6 + 2] = frame['x_obs'][i]
+            curr_obs[i * 6 + 3] = frame['y_obs'][i]
+            curr_obs[i * 6 + 4] = frame['x_dot_obs'][i]
+            curr_obs[i * 6 + 5] = frame['x_ddot_obs'][i]
         # for j in range(frame['num_obs']*4,15):
         #     curr_obs[j] = 0
         obs.append(curr_obs)
@@ -50,9 +60,9 @@ if __name__ == "__main__":
     print(obs[0])
 
 
-    # write_path = "obs_data_16d_255.csv"
-    # save_csv(write_path, obs)
-    write_path = "ego_data_20d.csv"
-    save_csv(write_path, ego)
+    write_path = "obs_data_24d.csv"
+    save_csv(write_path, obs)
+    # write_path = "ego_data_20d.csv"
+    # save_csv(write_path, ego)
 
 
