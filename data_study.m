@@ -77,22 +77,22 @@ for i_channel = 0:3
     end
     segments_all_channels{i_channel+1} = long_segments;
 end
-min_len = 1e7;
-max_len = 0;
-sum = 0;
-num_total_segs = 0;
-for i_channel = 0:3
-    segs = segments_all_channels{i_channel+1};
-    num_segs = size(segs,2);
-    num_total_segs = num_total_segs + num_segs; 
-    for i = 1:length(segs)
-        len_seg = size(segs{i},1);
-        sum = sum + len_seg;
-        if len_seg < min_len
-            min_len = len_seg;
-        end
-        if len_seg > max_len
-            max_len = len_seg;
-        end
-    end
-end
+% min_len = 1e7;
+% max_len = 0;
+% sum = 0;
+% num_total_segs = 0;
+% for i_channel = 0:3
+%     segs = segments_all_channels{i_channel+1};
+%     num_segs = size(segs,2);
+%     num_total_segs = num_total_segs + num_segs; 
+%     for i = 1:length(segs)
+%         len_seg = size(segs{i},1);
+%         sum = sum + len_seg;
+%         if len_seg < min_len
+%             min_len = len_seg;
+%         end
+%         if len_seg > max_len
+%             max_len = len_seg;
+%         end
+%     end
+% end
