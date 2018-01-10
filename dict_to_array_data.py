@@ -26,7 +26,9 @@ if __name__ == "__main__":
                     frame['accel_x'],frame['accel_y'],frame['accel_z'],
                     frame['P_rate'],frame['Q_rate'],frame['R_rate'],
                     frame['left_heading'],frame['right_heading'],frame['psi_T_0'],
-                    frame['left_dist'], frame['right_dist']]
+                    frame['left_dist'], frame['right_dist'],
+                    frame['left_curvature'],frame['right_curvature'],
+                    frame['left_curvature_derivative'],frame['right_curvature_derivative']]
         ego.append(curr_ego)
         # curr_obs = np.zeros(16)
         curr_obs = np.zeros(24)
@@ -60,9 +62,9 @@ if __name__ == "__main__":
     print(obs[0])
 
 
-    write_path = "obs_data_24d.csv"
-    save_csv(write_path, obs)
-    # write_path = "ego_data_20d.csv"
-    # save_csv(write_path, ego)
+    # write_path = "obs_data_24d.csv"
+    # save_csv(write_path, obs)
+    write_path = "ego_data_24d.csv"
+    save_csv(write_path, ego)
 
 
