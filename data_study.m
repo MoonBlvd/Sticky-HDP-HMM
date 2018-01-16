@@ -1,6 +1,6 @@
 clear all;clc;
 % file = 'obs_data_16d_255.csv';
-file = 'obs_data_24d.csv';
+file = 'obs_data_24d.csv';%
 data=csvread(file);
 data = data(1150:27149,:); % get rid of parking lot
 figure(1)
@@ -47,6 +47,7 @@ plot(1:size(data,1),data(:,3));hold on;
 %     plot(seg_idx,segment);hold on;
 % end
 segments_all_channels = {};
+ctr_all_segments = 0; % count the number of total segments
 for i_channel = 0:3
     obj_idx = find(data(:,i_channel*6+1) ~= -1);
     segments = {};
@@ -71,7 +72,9 @@ for i_channel = 0:3
         seg_id = segments{i};
         if length(seg_id) > 20
             j = j+1;
-            long_segments{j} = [seg_id' data(seg_id,i_channel*6+1:i_channel*6+6)]; % save long segments
+            long_segments{j} = [seg_id' data(seg_id,i_channel*6+1:i_channel*6+6)]; % [frame_ID in whole trajectory, obs_ID, obs_age, x_obs, y_obs, v_obs, a_obs]
+            ctr_all_segments = ctr_all_segments + 1;
+            csvwrite(['drive_segments/', sprintf('seg%04d.csv',ctr_all_segments)], long_segments{j})
 %             plot(seg_id,data(seg_id,3));hold on;
         end
     end
@@ -96,3 +99,4 @@ end
 %         end
 %     end
 % end
+
