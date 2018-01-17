@@ -10,6 +10,10 @@ from hmmlearn import hmm
 import csv
 import warnings
 from sklearn.externals import joblib
+import warnings
+
+def fxn():
+    warnings.warn("deprecated", DeprecationWarning)
 
 def read_data(file_path):
     # The read-in data should be a N*W matrix,
@@ -97,10 +101,15 @@ for data in train_data:
     length.append(data.shape[0])
 X = np.concatenate(train_data)
 # from sklearn.hmm import GMMHMM
-n_components_list = [5,10,15]
-n_mix_list = [2,5,8]
-for i, n_mix in enumerate(n_mix_list):
-    for j, n_components in enumerate(n_components_list):
-        gmm_hmm = hmm.GMMHMM(n_components=n_components, tol=0.0001, n_mix=n_mix, n_iter=10000, verbose=True)
-        gmm_hmm.fit(X,length)
-        joblib.dump(gmm_hmm, 'GMMHMM_model_'+str(n_components)+'_'+str(n_mix)+'.pkl')
+# n_components_list = [5,10,15]
+# n_mix_list = [2,5,8]
+n_components_list = [50,70]
+n_mix_list = [1]
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    fxn()
+    for i, n_mix in enumerate(n_mix_list):
+        for j, n_components in enumerate(n_components_list):
+            gmm_hmm = hmm.GMMHMM(n_components=n_components, tol=0.0001, n_mix=n_mix, n_iter=10000, verbose=True)
+            gmm_hmm.fit(X,length)
+            joblib.dump(gmm_hmm, 'GMMHMM_model_'+str(n_components)+'_'+str(n_mix)+'.pkl')
