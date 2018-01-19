@@ -12,6 +12,8 @@ import warnings
 from sklearn.externals import joblib
 import warnings
 
+time_step = 0.1
+
 def fxn():
     warnings.warn("deprecated", DeprecationWarning)
 
@@ -34,11 +36,11 @@ def read_data(file_path):
 '''
 Load the segments where a continuous obs car exists
 '''
-data_path = "drive_segments/*.csv"
+data_path = "drive_segments_9d/*.csv"
 files = glob.glob(data_path)
 all_segs = []
 for name in files:
-    data = read_data(name)#[frame_id, x_obs,y_obs,dv,a_obs]
+    data = read_data(name)#[frame_id, obs_ID, obs_age, x_obs, y_obs, v_obs, a_obs, obs_angle, obs_angle_rate]
     data[:,0] += 1149 # change the 
     all_segs.append(data)
 '''
@@ -89,7 +91,27 @@ for segment in all_segs:
     obs_prob_list = np.array(obs_prob_list)
     violation_prob_list = np.array(violation_prob_list)
     
-    concat_seg = np.hstack([segment[:,3:7],ego_car_list])
+    '''
+    Method 1
+    Observable states are: dx, dv, obs_angle.
+    Hidden states are: daccel, angle_rate
+    '''
+    dx = np.reshape(segment[:,3], (segment.shape[0],1))
+    dv = np.reshape(segment[:,5] - ego_car_list[:,0], (segment.shape[0],1))
+    obs_angle = np.reshape(segment[:,7], (segment.shape[0],1))
+    daccel = np.reshape(segment[:,6] - ego_car_list[:,1], (segment.shape[0],1))
+    obs_angle_rate = np.reshape((segment[1:,7] - segment[0:-1,7]), (segment.shape[0]-1,1))/time_step
+    obs_angle_rate = np.vstack([obs_angle_rate, obs_angle_rate[-1]])
+    # print(dx.shape)
+    # print(dv.shape)
+    # print(obs_angle.shape)
+    # print(daccel.shape)
+    # print(obs_angle_rate.shape)
+    concat_seg = np.hstack([dx,dv,obs_angle,daccel,obs_angle_rate])
+    # print(concat_seg.shape)
+    # input("method 1 is done...")
+
+    # concat_seg = np.hstack([segment[:,3:7],ego_car_list]) # 
     data_segments.append(concat_seg)
 
 num_train = 250
@@ -101,15 +123,17 @@ for data in train_data:
     length.append(data.shape[0])
 X = np.concatenate(train_data)
 # from sklearn.hmm import GMMHMM
-# n_components_list = [5,10,15]
-# n_mix_list = [2,5,8]
-n_components_list = [50,70]
-n_mix_list = [1]
+n_components_list = [5,10,15,20]
+n_mix_list = [2,5,8]
+# n_components_list = [25]
+# n_mix_list = [2]
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     fxn()
     for i, n_mix in enumerate(n_mix_list):
         for j, n_components in enumerate(n_components_list):
-            gmm_hmm = hmm.GMMHMM(n_components=n_components, tol=0.0001, n_mix=n_mix, n_iter=10000, verbose=True)
+            gmm_hmm = hmm.GMMHMM(n_components=n_components, tol=0.0001, n_mix=n_mix, n_iter=10000, verbose=True, covariance_type="diag")
+            # for i,_ in enumerate(gmm_hmm.gmms_):
+            # 	gmm_hmm.gmms_[i].covars_ = np.tile(np.identity(5), (n_mix, 1, 1))
             gmm_hmm.fit(X,length)
             joblib.dump(gmm_hmm, 'GMMHMM_model_'+str(n_components)+'_'+str(n_mix)+'.pkl')

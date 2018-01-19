@@ -1,6 +1,7 @@
 clear all;clc;
 % file = 'obs_data_16d_255.csv';
-file = 'obs_data_24d.csv';%
+% file = 'obs_data_24d.csv';%
+file = 'obs_data_32d.csv';%
 data=csvread(file);
 data = data(1150:27149,:); % get rid of parking lot
 figure(1)
@@ -48,22 +49,23 @@ plot(1:size(data,1),data(:,3));hold on;
 % end
 segments_all_channels = {};
 ctr_all_segments = 0; % count the number of total segments
+d = 8;
 for i_channel = 0:3
-    obj_idx = find(data(:,i_channel*6+1) ~= -1);
+    obj_idx = find(data(:,i_channel*8+1) ~= -1);
     segments = {};
-    prev_obs_ID = data(obj_idx(1),i_channel*6+1);
+    prev_obs_ID = data(obj_idx(1),i_channel*8+1);
     prev_frame_ID = obj_idx(1);
     seg_idx = [prev_frame_ID];
     j = 0;
     for i = 2:length(obj_idx)
-        if data(obj_idx(i),i_channel*6+1) == prev_obs_ID %&& obj_idx(i) == prev_frame_ID +1
+        if data(obj_idx(i),i_channel*8+1) == prev_obs_ID %&& obj_idx(i) == prev_frame_ID +1
             seg_idx = [seg_idx, obj_idx(i)];
         else
             j = j+1; % id of the new segment
             segments{j} = seg_idx; % a new segment
             seg_idx = [obj_idx(i)];
         end
-        prev_obs_ID = data(obj_idx(i),i_channel*6+1);
+        prev_obs_ID = data(obj_idx(i),i_channel*8+1);
     end
     long_segments = {}; % buffer to save long segments
     j = 0; % id of long segments
@@ -72,9 +74,9 @@ for i_channel = 0:3
         seg_id = segments{i};
         if length(seg_id) > 20
             j = j+1;
-            long_segments{j} = [seg_id' data(seg_id,i_channel*6+1:i_channel*6+6)]; % [frame_ID in whole trajectory, obs_ID, obs_age, x_obs, y_obs, v_obs, a_obs]
+            long_segments{j} = [seg_id' data(seg_id,i_channel*8+1:i_channel*8+8)]; % [frame_ID in whole trajectory, obs_ID, obs_age, x_obs, y_obs, v_obs, a_obs]
             ctr_all_segments = ctr_all_segments + 1;
-            csvwrite(['drive_segments/', sprintf('seg%04d.csv',ctr_all_segments)], long_segments{j})
+            csvwrite(['drive_segments_new/', sprintf('seg%04d.csv',ctr_all_segments)], long_segments{j})
 %             plot(seg_id,data(seg_id,3));hold on;
         end
     end
