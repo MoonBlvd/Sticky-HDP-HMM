@@ -10,6 +10,7 @@ from hmmlearn import hmm
 import csv
 import warnings
 from sklearn.externals import joblib
+from sklearn.mixture import GaussianMixture
 import warnings
 
 time_step = 0.1
@@ -122,7 +123,7 @@ length = []
 for data in train_data:
     length.append(data.shape[0])
 X = np.concatenate(train_data)
-# from sklearn.hmm import GMMHMM
+'''
 n_components_list = [5,10,15,20]
 n_mix_list = [2,5,8]
 # n_components_list = [25]
@@ -137,3 +138,18 @@ with warnings.catch_warnings():
             # 	gmm_hmm.gmms_[i].covars_ = np.tile(np.identity(5), (n_mix, 1, 1))
             gmm_hmm.fit(X,length)
             joblib.dump(gmm_hmm, 'GMMHMM_model_'+str(n_components)+'_'+str(n_mix)+'.pkl')
+'''
+# Trian the GMM
+n_components_list = [5,10,15,20,25,30]
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    fxn()
+    for i, n_mix in enumerate(n_mix_list):
+        GMM = GaussianMixture(n_components=n_components,
+                              covariance_type='full',
+                              tol=0.001,
+                              max_iter=1000,
+                              init_params='kmeans',
+                              verbose=1)
+        GMM.fit(X)
+        joblib.dump(GMM, 'GMM_model_'+str(n_components)'.pkl')
