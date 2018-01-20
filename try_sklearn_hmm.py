@@ -144,7 +144,7 @@ n_components_list = [5,10,15,20,25,30]
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     fxn()
-    for i, n_mix in enumerate(n_mix_list):
+    for i, n_components in enumerate(n_components_list):
         GMM = GaussianMixture(n_components=n_components,
                               covariance_type='full',
                               tol=0.001,
