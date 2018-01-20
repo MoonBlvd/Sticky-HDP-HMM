@@ -152,4 +152,4 @@ with warnings.catch_warnings():
                               init_params='kmeans',
                               verbose=1)
         GMM.fit(X)
-        joblib.dump(GMM, 'GMM_model_'+str(n_components)'.pkl')
+        joblib.dump(GMM, 'GMM_model_'+str(n_components)+'.pkl')
