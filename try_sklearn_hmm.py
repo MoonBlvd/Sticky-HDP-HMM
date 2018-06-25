@@ -140,6 +140,11 @@ with warnings.catch_warnings():
             joblib.dump(gmm_hmm, 'GMMHMM_model_'+str(n_components)+'_'+str(n_mix)+'.pkl')
 '''
 # Trian the GMM
+'''
+Following are the implementation of the GMM training and HMM transition matrix estimation
+Technially this is not a GMM-HMM but a an HMM with transition matrix exmtimated from GMM
+We implement it and compare it with the GMM-HMM method
+'''
 n_components_list = [5,10,15,20,25,30]
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
